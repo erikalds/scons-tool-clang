@@ -39,17 +39,20 @@ selection method.
 import os
 import re
 import subprocess
+import importlib
 
 import SCons.Util
 import SCons.Tool.cc
 
-compilers = ['clang']
+cplusplus = importlib.import_module('SCons.Tool.c++')
 
 def generate(env):
     """Add Builders and construction variables for clang to an Environment."""
     SCons.Tool.cc.generate(env)
+    cplusplus.generate(env)
 
-    env['CC'] = env.Detect(compilers) or 'clang'
+    env['CC'] = env.Detect(['clang']) or 'clang'
+    env['CXX'] = env.Detect(['clang++']) or 'clang++'
     if env['PLATFORM'] in ['cygwin', 'win32']:
         env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS')
     else:
@@ -69,7 +72,7 @@ def generate(env):
             env['CCVERSION'] = match.group(1)
 
 def exists(env):
-    return env.Detect(compilers)
+    return env.Detect(['clang', 'clang++'])
 
 # Local Variables:
 # tab-width:4
